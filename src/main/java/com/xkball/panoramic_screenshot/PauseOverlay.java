@@ -1,7 +1,7 @@
 package com.xkball.panoramic_screenshot;
 
 
-import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Overlay;
 
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -10,7 +10,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
 public class PauseOverlay extends Overlay {
     
     @Override
-    public void render(PoseStack poseStack, int i, int i1, float v) {
+    public void render(GuiGraphics guiGraphics, int i, int i1, float v) {
     
     }
 }
