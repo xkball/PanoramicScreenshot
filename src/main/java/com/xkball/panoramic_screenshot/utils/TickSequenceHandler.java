@@ -1,14 +1,14 @@
 package com.xkball.panoramic_screenshot.utils;
 
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@Mod.EventBusSubscriber(Dist.CLIENT)
+@EventBusSubscriber(Dist.CLIENT)
 public class TickSequenceHandler {
     
     public static TickSequenceHandler CLIENT_HANDLER = new TickSequenceHandler();
@@ -25,9 +25,7 @@ public class TickSequenceHandler {
     }
     
     @SubscribeEvent
-    public static void onTick(TickEvent.ClientTickEvent event){
-        if(event.phase == TickEvent.Phase.START){
-            CLIENT_HANDLER.accept("tick pre");
-        }
+    public static void onTick(ClientTickEvent.Pre event){
+        CLIENT_HANDLER.accept("tick pre");
     }
 }

@@ -2,13 +2,13 @@ package com.xkball.panoramic_screenshot;
 
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.pipeline.TextureTarget;
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.logging.LogUtils;
 import com.xkball.panoramic_screenshot.utils.TickSequence;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Screenshot;
 import net.minecraft.commands.CommandSourceStack;
@@ -16,27 +16,26 @@ import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.RegisterClientCommandsEvent;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.config.ModConfig;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.fml.loading.FMLPaths;
-import net.minecraftforge.server.command.EnumArgument;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.ModContainer;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.config.ModConfig;
+import net.neoforged.fml.loading.FMLPaths;
+import net.neoforged.neoforge.client.event.RegisterClientCommandsEvent;
+import net.neoforged.neoforge.server.command.EnumArgument;
 import org.slf4j.Logger;
 
 
-@Mod(PanoramicScreenshot.MODID)
-@Mod.EventBusSubscriber(value = Dist.CLIENT)
+@Mod(value = PanoramicScreenshot.MODID,dist = Dist.CLIENT)
+@EventBusSubscriber(value = Dist.CLIENT)
 public class PanoramicScreenshot {
     public static final String MODID = "panoramic_screenshot";
     private static final Logger LOGGER = LogUtils.getLogger();
 
-    public PanoramicScreenshot(FMLJavaModLoadingContext context) {
-        IEventBus modEventBus = context.getModEventBus();
-        context.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
+    public PanoramicScreenshot(ModContainer modContainer) {
+        modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
     }
     
     @SubscribeEvent
@@ -143,7 +142,7 @@ public class PanoramicScreenshot {
                 player.yRotO = player.getYRot();
                 player.xRotO = player.getXRot();
                 rendertarget.bindWrite(true);
-                mc.gameRenderer.renderLevel(1.0F, 0L, new PoseStack());
+                mc.gameRenderer.renderLevel(DeltaTracker.ONE);
                 
                 try {
                     Thread.sleep(10L);

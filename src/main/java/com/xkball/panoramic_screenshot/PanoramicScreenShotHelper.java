@@ -9,15 +9,15 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
-import net.minecraftforge.client.event.ViewportEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.loading.FMLPaths;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.fml.loading.FMLPaths;
+import net.neoforged.neoforge.client.event.ViewportEvent;
 
 
 import java.io.IOException;
 
-@Mod.EventBusSubscriber
+@EventBusSubscriber
 public class PanoramicScreenShotHelper {
     
     public static final PanoramicScreenShotHelper INSTANCE = new PanoramicScreenShotHelper();

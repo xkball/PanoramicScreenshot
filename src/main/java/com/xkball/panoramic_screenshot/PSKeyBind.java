@@ -2,17 +2,19 @@ package com.xkball.panoramic_screenshot;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.KeyMapping;
-import net.minecraft.client.Minecraft;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.InputEvent;
-import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
-import net.minecraftforge.common.util.Lazy;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 
-import net.minecraftforge.fml.common.Mod;
+
+import net.minecraft.client.Minecraft;
+
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.client.event.InputEvent;
+import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
+import net.neoforged.neoforge.common.util.Lazy;
 import org.lwjgl.glfw.GLFW;
 
-@Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD,value = Dist.CLIENT)
+@EventBusSubscriber(value = Dist.CLIENT)
 public class PSKeyBind {
     
     public static final Lazy<KeyMapping> PANORAMIC_KEY = Lazy.of(() -> new KeyMapping("keys.panoramic_screenshot.take_panoramic_screenshot", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_F8, KeyMapping.CATEGORY_MISC));
@@ -24,7 +26,7 @@ public class PSKeyBind {
         event.register(SKYBOX_KEY.get());
     }
     
-    @Mod.EventBusSubscriber(value = Dist.CLIENT)
+    @EventBusSubscriber(value = Dist.CLIENT)
     public static class Event{
         
         @SubscribeEvent
