@@ -54,13 +54,17 @@ public class PanoramicScreenShotHelper {
         image.close();
     }
     
-    public int startDefault(CommandContext<CommandSourceStack> source){
+    public void startDefault(Mode mode){
         this.screenHeight = Minecraft.getInstance().getWindow().getScreenHeight();
         this.fov = Minecraft.getInstance().options.fov().get();
         this.yaw_start = 0;
         this.frame_delay = 0;
-        this.mode = source.getArgument("mode", Mode.class);
+        this.mode = mode;
         this.state = State.PREPARE;
+    }
+    
+    public int startDefault(CommandContext<CommandSourceStack> source){
+        this.startDefault(source.getArgument("mode", Mode.class));
         return 0;
     }
     

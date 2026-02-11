@@ -28,6 +28,8 @@ Take a panoramic screenshot that around yourself, like the title image.
 
 Implementation method is to rotate the perspective 360° and take screenshots repeatedly, and stitch them.
 
+To prevent scene changes during filming, the mod will try to pause game client. Bus run `/tick freeze` before this is still recommended.
+
 Parameters:
 - `mode`: one of `FAST` and `PRECISE`, `FAST` will take 360 screenshots while `PRECISE` take one screenshot each column of pixels.
 `FAST` mode have some flaws when fov larger than 60°. So `PRECISE` mode is recommended.

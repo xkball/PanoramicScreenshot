@@ -27,8 +27,6 @@ import net.minecraftforge.fml.loading.FMLPaths;
 import net.minecraftforge.server.command.EnumArgument;
 import org.slf4j.Logger;
 
-import java.io.File;
-
 
 @Mod(PanoramicScreenshot.MODID)
 @Mod.EventBusSubscriber(value = Dist.CLIENT)
@@ -178,11 +176,6 @@ public class PanoramicScreenshot {
         }
         
         return mutablecomponent;
-    }
-    
-    @Mod.EventBusSubscriber(modid = MODID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
-    public static class ClientModEvents {
-    
     }
     
 }
