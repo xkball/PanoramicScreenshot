@@ -57,7 +57,7 @@ public class PanoramicScreenshot {
                                 .then(Commands.argument("mode", EnumArgument.enumArgument(PanoramicScreenShotHelper.Mode.class))
                                         .executes(PanoramicScreenShotHelper.INSTANCE::startDefault)
                                         .then(Commands.argument("height", IntegerArgumentType.integer(1,16384))
-                                                .then(Commands.argument("fov", IntegerArgumentType.integer(1,180))
+                                                .then(Commands.argument("fov", IntegerArgumentType.integer(1,179))
                                                         .then(Commands.argument("yaw_start", IntegerArgumentType.integer(0,360))
                                                                 .then(Commands.argument("frame_delay", IntegerArgumentType.integer(0,1000))
                                                                         .executes(PanoramicScreenShotHelper.INSTANCE::start)))))))
