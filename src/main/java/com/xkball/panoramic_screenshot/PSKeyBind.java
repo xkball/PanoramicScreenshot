@@ -17,8 +17,8 @@ import org.lwjgl.glfw.GLFW;
 @EventBusSubscriber(value = Dist.CLIENT)
 public class PSKeyBind {
     
-    public static final Lazy<KeyMapping> PANORAMIC_KEY = Lazy.of(() -> new KeyMapping("keys.panoramic_screenshot.take_panoramic_screenshot", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_F8, KeyMapping.CATEGORY_MISC));
-    public static final Lazy<KeyMapping> SKYBOX_KEY = Lazy.of(() -> new KeyMapping("keys.panoramic_screenshot.take_skybox_screenshot", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_F9, KeyMapping.CATEGORY_MISC));
+    public static final Lazy<KeyMapping> PANORAMIC_KEY = Lazy.of(() -> new KeyMapping("keys.panoramic_screenshot.take_panoramic_screenshot", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_F8, KeyMapping.Category.MISC));
+    public static final Lazy<KeyMapping> SKYBOX_KEY = Lazy.of(() -> new KeyMapping("keys.panoramic_screenshot.take_skybox_screenshot", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_F9, KeyMapping.Category.MISC));
     
     @SubscribeEvent
     public static void registerBindings(RegisterKeyMappingsEvent event) {
@@ -32,7 +32,7 @@ public class PSKeyBind {
         @SubscribeEvent
         public static void onKeyInput(InputEvent.Key event){
             if(event.getAction() != InputConstants.PRESS) return;
-            if(PANORAMIC_KEY.get().isActiveAndMatches(InputConstants.getKey(event.getKey(),event.getScanCode()))){
+            if(PANORAMIC_KEY.get().isActiveAndMatches(InputConstants.getKey(event.getKeyEvent()))){
                 var fov = Minecraft.getInstance().options.fov().get();
                 if(fov >65){
                     PanoramicScreenShotHelper.INSTANCE.startDefault(PanoramicScreenShotHelper.Mode.PRECISE);
@@ -41,7 +41,7 @@ public class PSKeyBind {
                     PanoramicScreenShotHelper.INSTANCE.startDefault(PanoramicScreenShotHelper.Mode.FAST);
                 }
             }
-            else if(SKYBOX_KEY.get().isActiveAndMatches(InputConstants.getKey(event.getKey(),event.getScanCode()))){
+            else if(SKYBOX_KEY.get().isActiveAndMatches(InputConstants.getKey(event.getKeyEvent()))){
                 var co = PanoramicScreenshot.grabPanoramixScreenshot("skybox",2048,2048);
                 Minecraft.getInstance().execute(() -> Minecraft.getInstance().gui.getChat().addMessage(co));
             }

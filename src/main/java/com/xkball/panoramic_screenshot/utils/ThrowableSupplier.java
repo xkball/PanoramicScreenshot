@@ -1,7 +1,7 @@
 package com.xkball.panoramic_screenshot.utils;
 
 import com.mojang.logging.LogUtils;
-import org.antlr.v4.runtime.misc.NotNull;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 
 import javax.annotation.Nullable;

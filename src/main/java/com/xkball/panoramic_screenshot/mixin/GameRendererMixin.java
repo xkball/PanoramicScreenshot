@@ -14,11 +14,16 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(GameRenderer.class)
 public class GameRendererMixin {
+    
     @Inject(method = "render",at = @At("RETURN"))
     public void afterRender(DeltaTracker deltaTracker, boolean renderLevel, CallbackInfo ci){
-        if(PanoramicScreenShotHelper.INSTANCE.takeScreenShot){
-            PanoramicScreenShotHelper.INSTANCE.takeScreenShot = false;
-            PanoramicScreenShotHelper.INSTANCE.writeImageSection(Screenshot.takeScreenshot(Minecraft.getInstance().getMainRenderTarget()));
+        if(PanoramicScreenShotHelper.INSTANCE.takeScreenShot && !PanoramicScreenShotHelper.INSTANCE.takingScreenShot){
+            PanoramicScreenShotHelper.INSTANCE.takingScreenShot = true;
+            Screenshot.takeScreenshot(Minecraft.getInstance().getMainRenderTarget(),(i) -> {
+                PanoramicScreenShotHelper.INSTANCE.writeImageSection(i);
+                PanoramicScreenShotHelper.INSTANCE.takeScreenShot = false;
+                PanoramicScreenShotHelper.INSTANCE.takingScreenShot = false;
+            });
         }
         TickSequenceHandler.CLIENT_HANDLER.accept("after game render");
     }

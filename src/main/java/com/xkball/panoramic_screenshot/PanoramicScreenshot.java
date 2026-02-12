@@ -1,7 +1,6 @@
 package com.xkball.panoramic_screenshot;
 
 import com.mojang.blaze3d.pipeline.RenderTarget;
-import com.mojang.blaze3d.pipeline.TextureTarget;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
@@ -11,6 +10,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Screenshot;
+import net.minecraft.client.renderer.PanoramicScreenshotParameters;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.ClickEvent;
@@ -25,6 +25,7 @@ import net.neoforged.fml.config.ModConfig;
 import net.neoforged.fml.loading.FMLPaths;
 import net.neoforged.neoforge.client.event.RegisterClientCommandsEvent;
 import net.neoforged.neoforge.server.command.EnumArgument;
+import org.joml.Vector3f;
 import org.slf4j.Logger;
 
 
@@ -95,24 +96,25 @@ public class PanoramicScreenshot {
         var window = mc.getWindow();
         var player = mc.player;
         var gameDirectory = FMLPaths.GAMEDIR.get().toFile();
-        int i = window.getWidth();
-        int j = window.getHeight();
-        RenderTarget rendertarget = new TextureTarget(width, height, true, Minecraft.ON_OSX);
-        float f = mc.player.getXRot();
-        float f1 = mc.player.getYRot();
-        float f2 = mc.player.xRotO;
-        float f3 = mc.player.yRotO;
+        int l = window.getWidth();
+        int i1 = window.getHeight();
+        RenderTarget rendertarget = mc.getMainRenderTarget();
+        float f = player.getXRot();
+        float f1 = player.getYRot();
+        float f2 = player.xRotO;
+        float f3 = player.yRotO;
         mc.gameRenderer.setRenderBlockOutline(false);
         
         MutableComponent mutablecomponent;
         try {
-            mc.gameRenderer.setPanoramicMode(true);
-            mc.levelRenderer.graphicsChanged();
+            mc.gameRenderer
+                    .setPanoramicScreenshotParameters(new PanoramicScreenshotParameters(new Vector3f(mc.gameRenderer.getMainCamera().forwardVector())));
             window.setWidth(width);
             window.setHeight(height);
+            rendertarget.resize(width,height);
             
-            for(int k = 0; k < 6; ++k) {
-                switch (k) {
+            for (int j1 = 0; j1 < 6; j1++) {
+                switch (j1) {
                     case 0:
                         player.setYRot(f1);
                         player.setXRot(0.0F);
@@ -141,7 +143,7 @@ public class PanoramicScreenshot {
                 
                 player.yRotO = player.getYRot();
                 player.xRotO = player.getXRot();
-                rendertarget.bindWrite(true);
+                mc.gameRenderer.updateCamera(DeltaTracker.ONE);
                 mc.gameRenderer.renderLevel(DeltaTracker.ONE);
                 
                 try {
@@ -149,16 +151,15 @@ public class PanoramicScreenshot {
                 } catch (InterruptedException interruptedexception) {
                 }
                 
-                Screenshot.grab(gameDirectory, name + "_" + k + ".png", rendertarget, (p_231415_) -> {
-                });
+                Screenshot.grab(gameDirectory, name + "_" + j1 + ".png", rendertarget, 1, p_231415_ -> {});
             }
             
-            Component component = Component.literal(gameDirectory.getName()).withStyle(ChatFormatting.UNDERLINE).withStyle((p_231426_) -> {
-                return p_231426_.withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_FILE, gameDirectory.getAbsolutePath()));
-            });
+            Component component = Component.literal(gameDirectory.getName())
+                    .withStyle(ChatFormatting.UNDERLINE)
+                    .withStyle(p_392492_ -> p_392492_.withClickEvent(new ClickEvent.OpenFile(gameDirectory.getAbsoluteFile())));
             return Component.translatable("screenshot.success", component);
         } catch (Exception exception) {
-            LOGGER.error("Couldn't save image", (Throwable)exception);
+            LOGGER.error("Couldn't save image", exception);
             mutablecomponent = Component.translatable("screenshot.failure", exception.getMessage());
         } finally {
             player.setXRot(f);
@@ -166,12 +167,10 @@ public class PanoramicScreenshot {
             player.xRotO = f2;
             player.yRotO = f3;
             mc.gameRenderer.setRenderBlockOutline(true);
-            window.setWidth(i);
-            window.setHeight(j);
-            rendertarget.destroyBuffers();
-            mc.gameRenderer.setPanoramicMode(false);
-            mc.levelRenderer.graphicsChanged();
-            mc.getMainRenderTarget().bindWrite(true);
+            window.setWidth(l);
+            window.setHeight(i1);
+            rendertarget.resize(l, i1);
+            mc.gameRenderer.setPanoramicScreenshotParameters(null);
         }
         
         return mutablecomponent;

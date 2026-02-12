@@ -4,11 +4,11 @@ import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import net.minecraft.ChatFormatting;
-import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
+import net.minecraft.util.Util;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.loading.FMLPaths;
@@ -30,6 +30,7 @@ public class PanoramicScreenShotHelper {
     private int delay;
     private float rotation;
     public boolean takeScreenShot;
+    public boolean takingScreenShot;
     private int colWidth;
     private float fovPerPixel;
     private int currentX;
@@ -41,13 +42,12 @@ public class PanoramicScreenShotHelper {
     
     public void writeImageSection(NativeImage image){
         var window = Minecraft.getInstance().getWindow();
-        //var h = screenHeight;
         var h = window.getHeight();
         var w = (int) (h * ((float)window.getWidth()/(float)window.getHeight()));
         var centerStart = (int)(w/2f - colWidth/2f);
         for(int x = 0; x < colWidth; x++){
             for(var y = 0; y < h; y++){
-                this.image.setPixelRGBA(x + this.currentX, y, image.getPixelRGBA(centerStart + x, y));
+                this.image.setPixel(x + this.currentX, y, image.getPixel(centerStart + x, y));
             }
         }
         this.currentX += colWidth;
@@ -87,7 +87,6 @@ public class PanoramicScreenShotHelper {
                 INSTANCE.state = State.CAPTURING;
                 var window = Minecraft.getInstance().getWindow();
                 var h = INSTANCE.screenHeight;
-                //var h = window.getHeight();
                 var as = ((float)window.getWidth()/(float)window.getHeight());
                 var w = (int) (h * as);
                 IExtendedWindow.cast(window).enableOverride(w,h);
@@ -107,13 +106,13 @@ public class PanoramicScreenShotHelper {
                 Minecraft.getInstance().setOverlay(new PauseOverlay());
             }
             case CAPTURING -> {
+                event.setYaw((INSTANCE.rotation + INSTANCE.yaw_start) % 360);
+                event.setPitch(0);
                 if(!INSTANCE.takeScreenShot){
                     if(INSTANCE.rotation >= 360){
                         INSTANCE.state = State.FINISHING;
                         break;
                     }
-                    event.setYaw((INSTANCE.rotation + INSTANCE.yaw_start) % 360);
-                    event.setPitch(0);
                     if(INSTANCE.delay < INSTANCE.frame_delay){
                         INSTANCE.delay += 1;
                     }
@@ -143,7 +142,7 @@ public class PanoramicScreenShotHelper {
                         () -> Minecraft.getInstance().gui.getChat().addMessage(
                                 Component.literal(file.toFile().getName())
                                         .withStyle(ChatFormatting.UNDERLINE)
-                                        .withStyle(style -> style.withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_FILE, file.toFile().getAbsolutePath())))
+                                        .withStyle(style -> style.withClickEvent(new ClickEvent.OpenFile(file.toFile().getAbsolutePath())))
                         )
                 );
             }

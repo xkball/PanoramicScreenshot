@@ -4,8 +4,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.xkball.panoramic_screenshot.PanoramicScreenshot;
 import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.MinecraftServer;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -19,32 +18,24 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HexFormat;
 import java.util.List;
-import java.util.UUID;
 
 public class VanillaUtils {
     
     public static final Direction[] DIRECTIONS = Direction.values();
-    public static final ResourceLocation MISSING_TEXTURE = ResourceLocation.withDefaultNamespace("missingno");
+    public static final Identifier MISSING_TEXTURE = Identifier.withDefaultNamespace("missingno");
     public static final int TRANSPARENT = VanillaUtils.getColor(255, 255, 255, 0);
     public static final int GUI_GRAY = VanillaUtils.getColor(30, 30, 30, 200);
     
-    public static ResourceLocation modRL(String path) {
+    public static Identifier modRL(String path) {
         return rLOf(PanoramicScreenshot.MODID, path);
     }
     
-    public static ResourceLocation rLOf(String namespace, String path) {
-        return ResourceLocation.fromNamespaceAndPath(namespace, path);
+    public static Identifier rLOf(String namespace, String path) {
+        return Identifier.fromNamespaceAndPath(namespace, path);
     }
     
     public static EquipmentSlot equipmentSlotFromHand(InteractionHand hand) {
         return hand == InteractionHand.MAIN_HAND ? EquipmentSlot.MAINHAND : EquipmentSlot.OFFHAND;
-    }
-    
-    public static void runCommand(String command, MinecraftServer server, UUID playerUUID) {
-        var player = server.getPlayerList().getPlayer(playerUUID);
-        if (player != null) {
-            server.getCommands().performPrefixedCommand(player.createCommandSourceStack().withPermission(2), command);
-        }
     }
     
     //irrelevant vanilla(笑)
