@@ -139,7 +139,7 @@ public class PanoramicScreenShotHelper {
                 Minecraft.getInstance().setOverlay(null);
                 IExtendedWindow.cast(Minecraft.getInstance().getWindow()).disableOverride();
                 Minecraft.getInstance().execute(
-                        () -> Minecraft.getInstance().gui.getChat().addMessage(
+                        () -> Minecraft.getInstance().gui.getChat().addClientSystemMessage(
                                 Component.literal(file.toFile().getName())
                                         .withStyle(ChatFormatting.UNDERLINE)
                                         .withStyle(style -> style.withClickEvent(new ClickEvent.OpenFile(file.toFile().getAbsolutePath())))

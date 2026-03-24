@@ -10,7 +10,6 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Screenshot;
-import net.minecraft.client.renderer.PanoramicScreenshotParameters;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.ClickEvent;
@@ -25,8 +24,9 @@ import net.neoforged.fml.config.ModConfig;
 import net.neoforged.fml.loading.FMLPaths;
 import net.neoforged.neoforge.client.event.RegisterClientCommandsEvent;
 import net.neoforged.neoforge.server.command.EnumArgument;
-import org.joml.Vector3f;
 import org.slf4j.Logger;
+
+import java.io.PrintStream;
 
 
 @Mod(value = PanoramicScreenshot.MODID,dist = Dist.CLIENT)
@@ -45,7 +45,7 @@ public class PanoramicScreenshot {
                 Commands.literal("screenshot")
                         .then(Commands.literal("normal")
                                 .executes(c -> {
-                                    Screenshot.grab(FMLPaths.GAMEDIR.get().toFile(), Minecraft.getInstance().getMainRenderTarget(), (co) -> Minecraft.getInstance().execute(() -> Minecraft.getInstance().gui.getChat().addMessage(co)));
+                                    Screenshot.grab(FMLPaths.GAMEDIR.get().toFile(), Minecraft.getInstance().getMainRenderTarget(), (co) -> Minecraft.getInstance().execute(() -> Minecraft.getInstance().gui.getChat().addClientSystemMessage(co)));
                                     return 0;
                                 })
                                 .then(Commands.argument("width",IntegerArgumentType.integer(1,16384))
@@ -62,7 +62,7 @@ public class PanoramicScreenshot {
                         .then(Commands.literal("skybox")
                                 .executes((c) -> {
                                     var co = PanoramicScreenshot.grabPanoramixScreenshot("skybox",2048,2048);
-                                    Minecraft.getInstance().execute(() -> Minecraft.getInstance().gui.getChat().addMessage(co));
+                                    Minecraft.getInstance().execute(() -> Minecraft.getInstance().gui.getChat().addClientSystemMessage(co));
                                     return 0;
                                 })
                                 .then(Commands.argument("name", StringArgumentType.string())
@@ -71,7 +71,7 @@ public class PanoramicScreenshot {
                                                     var name = StringArgumentType.getString(c,"name");
                                                     var size = IntegerArgumentType.getInteger(c,"size");
                                                     var co = PanoramicScreenshot.grabPanoramixScreenshot(name,size,size);
-                                                    Minecraft.getInstance().execute(() -> Minecraft.getInstance().gui.getChat().addMessage(co));
+                                                    Minecraft.getInstance().execute(() -> Minecraft.getInstance().gui.getChat().addClientSystemMessage(co));
                                                     return 0;
                                                 }))))
         
@@ -84,7 +84,7 @@ public class PanoramicScreenshot {
         TickSequence.builder()
                 .append(() -> IExtendedWindow.get().enableOverride(width,height))
                 .waitTicks(1)
-                .append("after game render",() -> Screenshot.grab(FMLPaths.GAMEDIR.get().toFile(), Minecraft.getInstance().getMainRenderTarget(), (co) -> Minecraft.getInstance().execute(() -> Minecraft.getInstance().gui.getChat().addMessage(co))))
+                .append("after game render",() -> Screenshot.grab(FMLPaths.GAMEDIR.get().toFile(), Minecraft.getInstance().getMainRenderTarget(), (co) -> Minecraft.getInstance().execute(() -> Minecraft.getInstance().gui.getChat().addClientSystemMessage(co))))
                 .waitTicks(1)
                 .append(() -> IExtendedWindow.get().disableOverride())
                 .buildInClient();
@@ -96,6 +96,7 @@ public class PanoramicScreenshot {
         var window = mc.getWindow();
         var player = mc.player;
         var gameDirectory = FMLPaths.GAMEDIR.get().toFile();
+        var camera = mc.gameRenderer.getMainCamera();
         int l = window.getWidth();
         int i1 = window.getHeight();
         RenderTarget rendertarget = mc.getMainRenderTarget();
@@ -107,8 +108,7 @@ public class PanoramicScreenshot {
         
         MutableComponent mutablecomponent;
         try {
-            mc.gameRenderer
-                    .setPanoramicScreenshotParameters(new PanoramicScreenshotParameters(new Vector3f(mc.gameRenderer.getMainCamera().forwardVector())));
+            camera.enablePanoramicMode();
             window.setWidth(width);
             window.setHeight(height);
             rendertarget.resize(width,height);
@@ -143,7 +143,8 @@ public class PanoramicScreenshot {
                 
                 player.yRotO = player.getYRot();
                 player.xRotO = player.getXRot();
-                mc.gameRenderer.updateCamera(DeltaTracker.ONE);
+                camera.update(DeltaTracker.ONE);
+                mc.levelRenderer.update(camera);
                 mc.gameRenderer.renderLevel(DeltaTracker.ONE);
                 
                 try {
@@ -170,7 +171,7 @@ public class PanoramicScreenshot {
             window.setWidth(l);
             window.setHeight(i1);
             rendertarget.resize(l, i1);
-            mc.gameRenderer.setPanoramicScreenshotParameters(null);
+            camera.disablePanoramicMode();
         }
         
         return mutablecomponent;
