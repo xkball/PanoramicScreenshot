@@ -4,11 +4,11 @@ import com.xkball.panoramic_screenshot.utils.GifSequenceWriter;
 import com.xkball.panoramic_screenshot.utils.ImageUtils;
 import com.xkball.panoramic_screenshot.utils.TickSequence;
 import net.minecraft.ChatFormatting;
+import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Screenshot;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
-import net.minecraft.util.Util;
 import net.neoforged.fml.loading.FMLPaths;
 
 import javax.imageio.stream.FileImageOutputStream;
@@ -48,13 +48,12 @@ public class GifHelper {
                     if(finished || current - startTime > timeSec * 1_000_000_000L) return true;
                     if(current - lastFrameTime > frameTime){
                         lastFrameTime = current;
-                        Screenshot.takeScreenshot(Minecraft.getInstance().getMainRenderTarget(),(i) -> {
-                            var ima = ImageUtils.toBufferedImage(i);
-                            synchronized (images){
-                                images.add(ima);
-                            }
-                            i.close();
-                        });
+                        var i = Screenshot.takeScreenshot(Minecraft.getInstance().getMainRenderTarget());
+                        var ima = ImageUtils.toBufferedImage(i);
+                        synchronized (images){
+                            images.add(ima);
+                        }
+                        i.close();
                     }
                     return false;
                 })
@@ -81,7 +80,7 @@ public class GifHelper {
                     () -> Minecraft.getInstance().gui.getChat().addMessage(
                             Component.literal(file.toFile().getName())
                                     .withStyle(ChatFormatting.UNDERLINE)
-                                    .withStyle(style -> style.withClickEvent(new ClickEvent.OpenFile(file.toFile().getAbsolutePath())))
+                                    .withStyle(style -> style.withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_FILE,file.toFile().getAbsolutePath())))
                     )
             );
         } catch (IOException e) {
