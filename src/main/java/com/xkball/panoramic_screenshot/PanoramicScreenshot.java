@@ -1,6 +1,7 @@
 package com.xkball.panoramic_screenshot;
 
 import com.mojang.blaze3d.pipeline.RenderTarget;
+import com.mojang.brigadier.arguments.FloatArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
@@ -34,6 +35,7 @@ import org.slf4j.Logger;
 public class PanoramicScreenshot {
     public static final String MODID = "panoramic_screenshot";
     private static final Logger LOGGER = LogUtils.getLogger();
+    public static final GifHelper globalGifHelper = new GifHelper();
 
     public PanoramicScreenshot(ModContainer modContainer) {
         modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
@@ -41,41 +43,72 @@ public class PanoramicScreenshot {
     
     @SubscribeEvent
     public static void onRegClientCommand(RegisterClientCommandsEvent event){
-        event.getDispatcher().register(
-                Commands.literal("screenshot")
-                        .then(Commands.literal("normal")
-                                .executes(c -> {
-                                    Screenshot.grab(FMLPaths.GAMEDIR.get().toFile(), Minecraft.getInstance().getMainRenderTarget(), (co) -> Minecraft.getInstance().execute(() -> Minecraft.getInstance().gui.getChat().addMessage(co)));
-                                    return 0;
-                                })
-                                .then(Commands.argument("width",IntegerArgumentType.integer(1,16384))
-                                        .then(Commands.argument("height", IntegerArgumentType.integer(1,16384))
-                                                .executes(PanoramicScreenshot::screenshotWithSize))))
-                        .then(Commands.literal("panoramic")
-                                .then(Commands.argument("mode", EnumArgument.enumArgument(PanoramicScreenShotHelper.Mode.class))
-                                        .executes(PanoramicScreenShotHelper.INSTANCE::startDefault)
-                                        .then(Commands.argument("height", IntegerArgumentType.integer(1,16384))
-                                                .then(Commands.argument("fov", IntegerArgumentType.integer(1,179))
-                                                        .then(Commands.argument("yaw_start", IntegerArgumentType.integer(0,360))
-                                                                .then(Commands.argument("frame_delay", IntegerArgumentType.integer(0,1000))
-                                                                        .executes(PanoramicScreenShotHelper.INSTANCE::start)))))))
-                        .then(Commands.literal("skybox")
-                                .executes((c) -> {
-                                    var co = PanoramicScreenshot.grabPanoramixScreenshot("skybox",2048,2048);
-                                    Minecraft.getInstance().execute(() -> Minecraft.getInstance().gui.getChat().addMessage(co));
-                                    return 0;
-                                })
-                                .then(Commands.argument("name", StringArgumentType.string())
-                                        .then(Commands.argument("size", IntegerArgumentType.integer(1,16384))
-                                                .executes((c) ->{
-                                                    var name = StringArgumentType.getString(c,"name");
-                                                    var size = IntegerArgumentType.getInteger(c,"size");
-                                                    var co = PanoramicScreenshot.grabPanoramixScreenshot(name,size,size);
-                                                    Minecraft.getInstance().execute(() -> Minecraft.getInstance().gui.getChat().addMessage(co));
-                                                    return 0;
-                                                }))))
-        
-        );
+            event.getDispatcher().register(
+                    Commands.literal("screenshot")
+                            .then(Commands.literal("normal")
+                                    .executes(c -> {
+                                        Screenshot.grab(FMLPaths.GAMEDIR.get().toFile(), Minecraft.getInstance().getMainRenderTarget(), (co) -> Minecraft.getInstance().execute(() -> Minecraft.getInstance().gui.getChat().addClientSystemMessage(co)));
+                                        return 0;
+                                    })
+                                    .then(Commands.argument("width",IntegerArgumentType.integer(1,16384))
+                                            .then(Commands.argument("height", IntegerArgumentType.integer(1,16384))
+                                                    .executes(PanoramicScreenshot::screenshotWithSize))))
+                            .then(Commands.literal("panoramic")
+                                    .then(Commands.argument("mode", EnumArgument.enumArgument(PanoramicScreenShotHelper.Mode.class))
+                                            .executes(PanoramicScreenShotHelper.INSTANCE::startDefault)
+                                            .then(Commands.argument("height", IntegerArgumentType.integer(1,16384))
+                                                    .then(Commands.argument("fov", IntegerArgumentType.integer(1,179))
+                                                            .then(Commands.argument("yaw_start", IntegerArgumentType.integer(0,360))
+                                                                    .then(Commands.argument("frame_delay", IntegerArgumentType.integer(0,1000))
+                                                                            .executes(PanoramicScreenShotHelper.INSTANCE::start)))))))
+                            .then(Commands.literal("skybox")
+                                    .executes((c) -> {
+                                        var co = PanoramicScreenshot.grabPanoramixScreenshot("skybox",2048,2048);
+                                        Minecraft.getInstance().execute(() -> Minecraft.getInstance().gui.getChat().addClientSystemMessage(co));
+                                        return 0;
+                                    })
+                                    .then(Commands.argument("name", StringArgumentType.string())
+                                            .then(Commands.argument("size", IntegerArgumentType.integer(1,16384))
+                                                    .executes((c) ->{
+                                                        var name = StringArgumentType.getString(c,"name");
+                                                        var size = IntegerArgumentType.getInteger(c,"size");
+                                                        var co = PanoramicScreenshot.grabPanoramixScreenshot(name,size,size);
+                                                        Minecraft.getInstance().execute(() -> Minecraft.getInstance().gui.getChat().addClientSystemMessage(co));
+                                                        return 0;
+                                                    }))))
+                            .then(Commands.literal("gif")
+                                    .executes((c) -> {
+                                        new GifHelper().start();
+                                        return 0;
+                                    })
+                                    .then(Commands.literal("fix_time")
+                                            .then(Commands.argument("time_second", FloatArgumentType.floatArg(0.01f))
+                                                    .then(Commands.argument("frame_rate",IntegerArgumentType.integer(1))
+                                                            .executes((c) -> {
+                                                                var timeSec = FloatArgumentType.getFloat(c,"time_second");
+                                                                var frameRate = IntegerArgumentType.getInteger(c,"frame_rate");
+                                                                var helper = new GifHelper();
+                                                                helper.timeSec = timeSec;
+                                                                helper.frameRate = frameRate;
+                                                                helper.start();
+                                                                return 0;
+                                                            }))))
+                                    .then(Commands.literal("start")
+                                            .then(Commands.argument("frame_rate",IntegerArgumentType.integer(1))
+                                                    .executes((c) -> {
+                                                        var frameRate = IntegerArgumentType.getInteger(c,"frame_rate");
+                                                        globalGifHelper.timeSec = 107986702;
+                                                        globalGifHelper.frameRate = frameRate;
+                                                        globalGifHelper.start();
+                                                        return 0;
+                                                    })))
+                                    .then(Commands.literal("end")
+                                            .executes((c) -> {
+                                                globalGifHelper.finished = true;
+                                                return 0;
+                                            })))
+            
+            );
     }
     
     public static int screenshotWithSize(CommandContext<CommandSourceStack> context){
