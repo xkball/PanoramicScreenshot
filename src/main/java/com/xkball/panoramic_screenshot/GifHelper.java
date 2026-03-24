@@ -9,7 +9,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.Screenshot;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
-import net.neoforged.fml.loading.FMLPaths;
+import net.minecraftforge.fml.loading.FMLPaths;
+
 
 import javax.imageio.stream.FileImageOutputStream;
 import javax.imageio.stream.ImageOutputStream;
@@ -68,7 +69,7 @@ public class GifHelper {
             ImageOutputStream output = new FileImageOutputStream(file.toFile());
             synchronized (images){
                 GifSequenceWriter writer = new GifSequenceWriter(
-                        output, images.getFirst().getType(), 1000/frameRate, true);
+                        output, images.get(0).getType(), 1000/frameRate, true);
                 for (BufferedImage img : images) {
                     writer.writeToSequence(img);
                 }
