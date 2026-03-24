@@ -1,11 +1,11 @@
 ![](images/title.png)
-
-# Panoramic Screenshot
+![](images/gif.gif)
+# Power Screenshot
 
 ![Discord](https://img.shields.io/discord/1370807259495534663?style=flat-square&logo=discord&label=xkball's%20mods&link=https%3A%2F%2Fdiscord.gg%2FS9DBXWHNsc)
 ![GitHub License](https://img.shields.io/github/license/xkball/PanoramicScreenshot?style=flat-square)
 
-A client mod, allows you to take high resolution normal/panoramic/skybox screenshots.
+A client mod, allows you to take high resolution normal/panoramic/skybox/gif screenshots.
 
 Use `/screenshot` to take a specified type of screenshot. Also supports set a shortcut key to take panoramic or skybox screenshots.
 
@@ -47,6 +47,17 @@ Parameters:
 - `name`: the file name of screenshots, form `<name>_0.png` to `<name>_5.png`.
 - `size`: the width and height, in pixels.
 
+### `/screenshot gif <start|end|fix_time> <frame_rate>`
+Record screen as gif file and save it in `screenshots` folder.
+
+You can run `/screenshot gif` directly to record a short gif with default parameters (`2` seconds, `10` fps).
+
+Parameters:
+- `start`: start recording with the given frame rate, and keep recording until run `/screenshot gif end`.
+- `end`: finish the recording started by `start` and save it.
+- `fix_time <time_second> <frame_rate>`: record for a fixed duration and save automatically.
+- `frame_rate`: how many frames to capture each second.
+
 ### Custom Title Screen Background
 
 ![](images/skybox.png)
@@ -80,4 +91,3 @@ The directory should looks like:
             {name}.json
 ```
 Mod will load all metadata and pick one randomly by the weight each time.
-
