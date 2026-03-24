@@ -47,7 +47,7 @@ public class PanoramicScreenshot {
                     Commands.literal("screenshot")
                             .then(Commands.literal("normal")
                                     .executes(c -> {
-                                        Screenshot.grab(FMLPaths.GAMEDIR.get().toFile(), Minecraft.getInstance().getMainRenderTarget(), (co) -> Minecraft.getInstance().execute(() -> Minecraft.getInstance().gui.getChat().addClientSystemMessage(co)));
+                                        Screenshot.grab(FMLPaths.GAMEDIR.get().toFile(), Minecraft.getInstance().getMainRenderTarget(), (co) -> Minecraft.getInstance().execute(() -> Minecraft.getInstance().gui.getChat().addMessage(co)));
                                         return 0;
                                     })
                                     .then(Commands.argument("width",IntegerArgumentType.integer(1,16384))
@@ -64,7 +64,7 @@ public class PanoramicScreenshot {
                             .then(Commands.literal("skybox")
                                     .executes((c) -> {
                                         var co = PanoramicScreenshot.grabPanoramixScreenshot("skybox",2048,2048);
-                                        Minecraft.getInstance().execute(() -> Minecraft.getInstance().gui.getChat().addClientSystemMessage(co));
+                                        Minecraft.getInstance().execute(() -> Minecraft.getInstance().gui.getChat().addMessage(co));
                                         return 0;
                                     })
                                     .then(Commands.argument("name", StringArgumentType.string())
@@ -73,7 +73,7 @@ public class PanoramicScreenshot {
                                                         var name = StringArgumentType.getString(c,"name");
                                                         var size = IntegerArgumentType.getInteger(c,"size");
                                                         var co = PanoramicScreenshot.grabPanoramixScreenshot(name,size,size);
-                                                        Minecraft.getInstance().execute(() -> Minecraft.getInstance().gui.getChat().addClientSystemMessage(co));
+                                                        Minecraft.getInstance().execute(() -> Minecraft.getInstance().gui.getChat().addMessage(co));
                                                         return 0;
                                                     }))))
                             .then(Commands.literal("gif")
