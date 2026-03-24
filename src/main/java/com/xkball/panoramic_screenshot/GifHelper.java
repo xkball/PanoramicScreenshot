@@ -33,7 +33,7 @@ public class GifHelper {
     public void start(){
         if(this.started){
             Minecraft.getInstance().execute(
-                    () -> Minecraft.getInstance().gui.getChat().addClientSystemMessage(
+                    () -> Minecraft.getInstance().gui.getChat().addMessage(
                             Component.literal("Already started !")));
             return;
         }
@@ -78,7 +78,7 @@ public class GifHelper {
             }
             output.close();
             Minecraft.getInstance().execute(
-                    () -> Minecraft.getInstance().gui.getChat().addClientSystemMessage(
+                    () -> Minecraft.getInstance().gui.getChat().addMessage(
                             Component.literal(file.toFile().getName())
                                     .withStyle(ChatFormatting.UNDERLINE)
                                     .withStyle(style -> style.withClickEvent(new ClickEvent.OpenFile(file.toFile().getAbsolutePath())))
