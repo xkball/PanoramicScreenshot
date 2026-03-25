@@ -10,7 +10,6 @@ import com.xkball.panoramic_screenshot.utils.VanillaUtils;
 import com.xkball.panoramic_screenshot.utils.WeightLootTable;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.CubeMap;
-import net.minecraft.client.renderer.PanoramaRenderer;
 import net.minecraft.client.renderer.texture.CubeMapTexture;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.ResourceManager;
@@ -49,11 +48,8 @@ public class SkyboxLoader extends SimplePreparableReloadListener<List<Pair<Ident
         var data = loot.roll(RandomSource.create());
         var rl = data.getFirst();
         var cubeMapRl = Identifier.fromNamespaceAndPath(rl.getNamespace(),rl.getPath().substring(0,rl.getPath().lastIndexOf('/')+1) + data.getSecond().name);
-        var cubeMap = new CubeMap(cubeMapRl);
         Minecraft.getInstance().getTextureManager().registerAndLoad(cubeMapRl,new CubeMapTexture(cubeMapRl));
-        Minecraft.getInstance().gameRenderer.cubeMap.close();
-        Minecraft.getInstance().gameRenderer.cubeMap = cubeMap;
-        Minecraft.getInstance().gameRenderer.panorama = new PanoramaRenderer(cubeMap);
+        Minecraft.getInstance().gameRenderer.guiRenderer.cubeMap = new CubeMap(cubeMapRl);
     }
     
     public record SkyboxData(String name, int weight){

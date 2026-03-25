@@ -174,8 +174,8 @@ public class PanoramicScreenshot {
                 
                 player.yRotO = player.getYRot();
                 player.xRotO = player.getXRot();
-                camera.update(DeltaTracker.ONE);
-                mc.levelRenderer.update(camera);
+                mc.gameRenderer.update(DeltaTracker.ONE, true);
+                mc.gameRenderer.extract(DeltaTracker.ONE, true);
                 mc.gameRenderer.renderLevel(DeltaTracker.ONE);
                 
                 try {

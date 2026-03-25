@@ -10,12 +10,10 @@ public interface IExtendedWindow {
     
     default void enableOverride(int w, int h){
         setOverrideSize(w, h);
-        Minecraft.getInstance().resizeDisplay();
     }
     
     default void disableOverride(){
         resetOverrideSize();
-        Minecraft.getInstance().resizeDisplay();
     }
     
     static IExtendedWindow cast(Object obj){
