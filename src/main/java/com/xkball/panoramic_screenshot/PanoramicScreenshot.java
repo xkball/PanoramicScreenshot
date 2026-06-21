@@ -45,7 +45,7 @@ public class PanoramicScreenshot {
                     Commands.literal("screenshot")
                             .then(Commands.literal("normal")
                                     .executes(c -> {
-                                        Screenshot.grab(FMLPaths.GAMEDIR.get().toFile(), Minecraft.getInstance().getMainRenderTarget(), (co) -> Minecraft.getInstance().execute(() -> Minecraft.getInstance().gui.getChat().addClientSystemMessage(co)));
+                                        Screenshot.grab(FMLPaths.GAMEDIR.get().toFile(), Minecraft.getInstance().gameRenderer.mainRenderTarget(), (co) -> Minecraft.getInstance().execute(() -> Minecraft.getInstance().gui.hud.getChat().addClientSystemMessage(co)));
                                         return 0;
                                     })
                                     .then(Commands.argument("width",IntegerArgumentType.integer(1,16384))
@@ -62,7 +62,7 @@ public class PanoramicScreenshot {
                             .then(Commands.literal("skybox")
                                     .executes((c) -> {
                                         var co = PanoramicScreenshot.grabPanoramixScreenshot("skybox",2048,2048);
-                                        Minecraft.getInstance().execute(() -> Minecraft.getInstance().gui.getChat().addClientSystemMessage(co));
+                                        Minecraft.getInstance().execute(() -> Minecraft.getInstance().gui.hud.getChat().addClientSystemMessage(co));
                                         return 0;
                                     })
                                     .then(Commands.argument("name", StringArgumentType.string())
@@ -71,7 +71,7 @@ public class PanoramicScreenshot {
                                                         var name = StringArgumentType.getString(c,"name");
                                                         var size = IntegerArgumentType.getInteger(c,"size");
                                                         var co = PanoramicScreenshot.grabPanoramixScreenshot(name,size,size);
-                                                        Minecraft.getInstance().execute(() -> Minecraft.getInstance().gui.getChat().addClientSystemMessage(co));
+                                                        Minecraft.getInstance().execute(() -> Minecraft.getInstance().gui.hud.getChat().addClientSystemMessage(co));
                                                         return 0;
                                                     }))))
                             .then(Commands.literal("gif")
@@ -115,7 +115,7 @@ public class PanoramicScreenshot {
         TickSequence.builder()
                 .append(() -> IExtendedWindow.get().enableOverride(width,height))
                 .waitTicks(1)
-                .append("after game render",() -> Screenshot.grab(FMLPaths.GAMEDIR.get().toFile(), Minecraft.getInstance().getMainRenderTarget(), (co) -> Minecraft.getInstance().execute(() -> Minecraft.getInstance().gui.getChat().addClientSystemMessage(co))))
+                .append("after game render",() -> Screenshot.grab(FMLPaths.GAMEDIR.get().toFile(), Minecraft.getInstance().gameRenderer.mainRenderTarget(), (co) -> Minecraft.getInstance().execute(() -> Minecraft.getInstance().gui.hud.getChat().addClientSystemMessage(co))))
                 .waitTicks(1)
                 .append(() -> IExtendedWindow.get().disableOverride())
                 .buildInClient();
@@ -127,10 +127,10 @@ public class PanoramicScreenshot {
         var window = mc.getWindow();
         var player = mc.player;
         var gameDirectory = FMLPaths.GAMEDIR.get().toFile();
-        var camera = mc.gameRenderer.getMainCamera();
+        var camera = mc.gameRenderer.mainCamera();
         int l = window.getWidth();
         int i1 = window.getHeight();
-        RenderTarget rendertarget = mc.getMainRenderTarget();
+        RenderTarget rendertarget = mc.gameRenderer.mainRenderTarget();
         float f = player.getXRot();
         float f1 = player.getYRot();
         float f2 = player.xRotO;
@@ -174,7 +174,7 @@ public class PanoramicScreenshot {
                 
                 player.yRotO = player.getYRot();
                 player.xRotO = player.getXRot();
-                mc.gameRenderer.update(DeltaTracker.ONE, true);
+                mc.gameRenderer.update(DeltaTracker.ONE);
                 mc.gameRenderer.extract(DeltaTracker.ONE, true);
                 mc.gameRenderer.renderLevel(DeltaTracker.ONE);
                 

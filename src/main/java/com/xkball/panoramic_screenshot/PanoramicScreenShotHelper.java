@@ -3,6 +3,7 @@ package com.xkball.panoramic_screenshot;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.context.CommandContext;
+import com.mojang.logging.LogUtils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.commands.CommandSourceStack;
@@ -16,10 +17,12 @@ import net.neoforged.neoforge.client.event.ViewportEvent;
 
 
 import java.io.IOException;
+import org.slf4j.Logger;
 
 @EventBusSubscriber
 public class PanoramicScreenShotHelper {
     
+    private static final Logger LOGGER = LogUtils.getLogger();
     public static final PanoramicScreenShotHelper INSTANCE = new PanoramicScreenShotHelper();
     
     public int fov;
@@ -103,7 +106,7 @@ public class PanoramicScreenShotHelper {
                 }
                 INSTANCE.rotation = 0;
                 INSTANCE.currentX = 0;
-                Minecraft.getInstance().setOverlay(new PauseOverlay());
+                Minecraft.getInstance().gui.setOverlay(new PauseOverlay());
             }
             case CAPTURING -> {
                 event.setYaw((INSTANCE.rotation + INSTANCE.yaw_start) % 360);
@@ -134,12 +137,13 @@ public class PanoramicScreenShotHelper {
                     INSTANCE.image.close();
                     INSTANCE.image = null;
                 } catch (IOException e) {
+                    LOGGER.error("Couldn't save panoramic screenshot", e);
                     throw new RuntimeException(e);
                 }
-                Minecraft.getInstance().setOverlay(null);
+                Minecraft.getInstance().gui.setOverlay(null);
                 IExtendedWindow.cast(Minecraft.getInstance().getWindow()).disableOverride();
                 Minecraft.getInstance().execute(
-                        () -> Minecraft.getInstance().gui.getChat().addClientSystemMessage(
+                        () -> Minecraft.getInstance().gui.hud.getChat().addClientSystemMessage(
                                 Component.literal(file.toFile().getName())
                                         .withStyle(ChatFormatting.UNDERLINE)
                                         .withStyle(style -> style.withClickEvent(new ClickEvent.OpenFile(file.toFile().getAbsolutePath())))

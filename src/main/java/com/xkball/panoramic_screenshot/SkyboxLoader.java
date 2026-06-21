@@ -1,7 +1,6 @@
 package com.xkball.panoramic_screenshot;
 
 import com.mojang.datafixers.util.Pair;
-import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -24,7 +23,6 @@ import net.neoforged.neoforge.client.event.AddClientReloadListenersEvent;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
 
-@MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
 @EventBusSubscriber
 public class SkyboxLoader extends SimplePreparableReloadListener<List<Pair<Identifier,SkyboxLoader.SkyboxData>>> {

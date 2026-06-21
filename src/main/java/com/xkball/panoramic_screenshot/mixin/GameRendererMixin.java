@@ -19,7 +19,7 @@ public class GameRendererMixin {
     public void afterRender(DeltaTracker deltaTracker, boolean renderLevel, CallbackInfo ci){
         if(PanoramicScreenShotHelper.INSTANCE.takeScreenShot && !PanoramicScreenShotHelper.INSTANCE.takingScreenShot){
             PanoramicScreenShotHelper.INSTANCE.takingScreenShot = true;
-            Screenshot.takeScreenshot(Minecraft.getInstance().getMainRenderTarget(),(i) -> {
+            Screenshot.takeScreenshot(Minecraft.getInstance().gameRenderer.mainRenderTarget(),(i) -> {
                 PanoramicScreenShotHelper.INSTANCE.writeImageSection(i);
                 PanoramicScreenShotHelper.INSTANCE.takeScreenShot = false;
                 PanoramicScreenShotHelper.INSTANCE.takingScreenShot = false;

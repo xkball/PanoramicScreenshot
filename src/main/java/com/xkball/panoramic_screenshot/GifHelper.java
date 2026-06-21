@@ -3,6 +3,7 @@ package com.xkball.panoramic_screenshot;
 import com.xkball.panoramic_screenshot.utils.GifSequenceWriter;
 import com.xkball.panoramic_screenshot.utils.ImageUtils;
 import com.xkball.panoramic_screenshot.utils.TickSequence;
+import com.mojang.logging.LogUtils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Screenshot;
@@ -18,9 +19,11 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import org.slf4j.Logger;
 
 public class GifHelper {
     
+    private static final Logger LOGGER = LogUtils.getLogger();
     public final List<BufferedImage> images = new ArrayList<>();
     public volatile double timeSec = 2;
     public volatile int frameRate = 10;
@@ -33,7 +36,7 @@ public class GifHelper {
     public void start(){
         if(this.started){
             Minecraft.getInstance().execute(
-                    () -> Minecraft.getInstance().gui.getChat().addClientSystemMessage(
+                    () -> Minecraft.getInstance().gui.hud.getChat().addClientSystemMessage(
                             Component.literal("Already started !")));
             return;
         }
@@ -48,7 +51,7 @@ public class GifHelper {
                     if(finished || current - startTime > timeSec * 1_000_000_000L) return true;
                     if(current - lastFrameTime > frameTime){
                         lastFrameTime = current;
-                        Screenshot.takeScreenshot(Minecraft.getInstance().getMainRenderTarget(),(i) -> {
+                        Screenshot.takeScreenshot(Minecraft.getInstance().gameRenderer.mainRenderTarget(),(i) -> {
                             var ima = ImageUtils.toBufferedImage(i);
                             synchronized (images){
                                 images.add(ima);
@@ -78,13 +81,14 @@ public class GifHelper {
             }
             output.close();
             Minecraft.getInstance().execute(
-                    () -> Minecraft.getInstance().gui.getChat().addClientSystemMessage(
+                    () -> Minecraft.getInstance().gui.hud.getChat().addClientSystemMessage(
                             Component.literal(file.toFile().getName())
                                     .withStyle(ChatFormatting.UNDERLINE)
                                     .withStyle(style -> style.withClickEvent(new ClickEvent.OpenFile(file.toFile().getAbsolutePath())))
                     )
             );
         } catch (IOException e) {
+            LOGGER.error("Couldn't save gif", e);
             throw new RuntimeException(e);
         }
         this.started = false;

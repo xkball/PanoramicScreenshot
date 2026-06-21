@@ -13,19 +13,14 @@ public abstract class WindowMixin implements IExtendedWindow {
     @Shadow private int framebufferHeight;
     
     @Shadow
-    protected abstract void setMode();
-    
-    @Shadow
     public abstract void setWindowed(int width, int height);
     
     @Shadow
     private boolean fullscreen;
     
     @Shadow
-    protected abstract void updateFullscreen(boolean enableVsync);
+    public abstract void updateFullscreenIfChanged();
     
-    @Shadow
-    private boolean vsync;
     @Unique
     private int panoramicScreenShot$wOld;
     @Unique
@@ -43,7 +38,10 @@ public abstract class WindowMixin implements IExtendedWindow {
     
     @Override
     public void resetOverrideSize() {
-        if(this.panoramicScreenShot$wasFullScreen) this.updateFullscreen(this.vsync);
+        if(this.panoramicScreenShot$wasFullScreen){
+            this.fullscreen = true;
+            this.updateFullscreenIfChanged();
+        }
         else this.setWindowed(panoramicScreenShot$wOld,panoramicScreenShot$hOld);
     }
 }
