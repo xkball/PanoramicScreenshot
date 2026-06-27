@@ -1,6 +1,5 @@
 package com.xkball.panoramic_screenshot;
 
-import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.brigadier.arguments.FloatArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
@@ -8,14 +7,12 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.logging.LogUtils;
 import com.xkball.panoramic_screenshot.utils.TickSequence;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Screenshot;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModContainer;
@@ -24,6 +21,7 @@ import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
 import net.neoforged.fml.loading.FMLPaths;
 import net.neoforged.neoforge.client.event.RegisterClientCommandsEvent;
+import net.neoforged.neoforge.client.event.ViewportEvent;
 import net.neoforged.neoforge.server.command.EnumArgument;
 import org.slf4j.Logger;
 
@@ -34,6 +32,7 @@ public class PanoramicScreenshot {
     public static final String MODID = "panoramic_screenshot";
     private static final Logger LOGGER = LogUtils.getLogger();
     public static final GifHelper globalGifHelper = new GifHelper();
+    public static boolean takingSkyBox = false;
 
     public PanoramicScreenshot(ModContainer modContainer) {
         modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
@@ -61,19 +60,19 @@ public class PanoramicScreenshot {
                                                                             .executes(PanoramicScreenShotHelper.INSTANCE::start)))))))
                             .then(Commands.literal("skybox")
                                     .executes((c) -> {
-                                        var co = PanoramicScreenshot.grabPanoramixScreenshot("skybox",2048,2048);
-                                        Minecraft.getInstance().execute(() -> Minecraft.getInstance().gui.getChat().addClientSystemMessage(co));
+                                        PanoramicScreenshot.screenshotSkyBox("skybox",2048, 2);
                                         return 0;
                                     })
                                     .then(Commands.argument("name", StringArgumentType.string())
                                             .then(Commands.argument("size", IntegerArgumentType.integer(1,16384))
-                                                    .executes((c) ->{
-                                                        var name = StringArgumentType.getString(c,"name");
-                                                        var size = IntegerArgumentType.getInteger(c,"size");
-                                                        var co = PanoramicScreenshot.grabPanoramixScreenshot(name,size,size);
-                                                        Minecraft.getInstance().execute(() -> Minecraft.getInstance().gui.getChat().addClientSystemMessage(co));
-                                                        return 0;
-                                                    }))))
+                                                    .then(Commands.argument("frame_delay", IntegerArgumentType.integer(0,1000))
+                                                            .executes((c) ->{
+                                                                var name = StringArgumentType.getString(c,"name");
+                                                                var size = IntegerArgumentType.getInteger(c,"size");
+                                                                var delay =  IntegerArgumentType.getInteger(c,"frame_delay");
+                                                                PanoramicScreenshot.screenshotSkyBox(name,size,delay);
+                                                                return 0;
+                                                            })))))
                             .then(Commands.literal("gif")
                                     .executes((c) -> {
                                         new GifHelper().start();
@@ -122,90 +121,94 @@ public class PanoramicScreenshot {
         return 0;
     }
     
-    public static Component grabPanoramixScreenshot(String name, int width, int height) {
+    public static void screenshotSkyBox(String name, int size, int delay){
         var mc = Minecraft.getInstance();
-        var window = mc.getWindow();
-        var player = mc.player;
-        var gameDirectory = FMLPaths.GAMEDIR.get().toFile();
-        var camera = mc.gameRenderer.getMainCamera();
-        int l = window.getWidth();
-        int i1 = window.getHeight();
-        RenderTarget rendertarget = mc.getMainRenderTarget();
-        float f = player.getXRot();
-        float f1 = player.getYRot();
-        float f2 = player.xRotO;
-        float f3 = player.yRotO;
-        mc.gameRenderer.setRenderBlockOutline(false);
-        
-        MutableComponent mutablecomponent;
-        try {
-            camera.enablePanoramicMode();
-            window.setWidth(width);
-            window.setHeight(height);
-            rendertarget.resize(width,height);
-            
-            for (int j1 = 0; j1 < 6; j1++) {
-                switch (j1) {
-                    case 0:
-                        player.setYRot(f1);
-                        player.setXRot(0.0F);
-                        break;
-                    case 1:
-                        player.setYRot((f1 + 90.0F) % 360.0F);
-                        player.setXRot(0.0F);
-                        break;
-                    case 2:
-                        player.setYRot((f1 + 180.0F) % 360.0F);
-                        player.setXRot(0.0F);
-                        break;
-                    case 3:
-                        player.setYRot((f1 - 90.0F) % 360.0F);
-                        player.setXRot(0.0F);
-                        break;
-                    case 4:
-                        player.setYRot(f1);
-                        player.setXRot(-90.0F);
-                        break;
-                    case 5:
-                    default:
-                        player.setYRot(f1);
-                        player.setXRot(90.0F);
-                }
-                
-                player.yRotO = player.getYRot();
-                player.xRotO = player.getXRot();
-                mc.gameRenderer.update(DeltaTracker.ONE, true);
-                mc.gameRenderer.extract(DeltaTracker.ONE, true);
-                mc.gameRenderer.renderLevel(DeltaTracker.ONE);
-                
-                try {
-                    Thread.sleep(10L);
-                } catch (InterruptedException interruptedexception) {
-                }
-                
-                Screenshot.grab(gameDirectory, name + "_" + j1 + ".png", rendertarget, 1, p_231415_ -> {});
-            }
-            
-            Component component = Component.literal(gameDirectory.getName())
-                    .withStyle(ChatFormatting.UNDERLINE)
-                    .withStyle(p_392492_ -> p_392492_.withClickEvent(new ClickEvent.OpenFile(gameDirectory.getAbsoluteFile())));
-            return Component.translatable("screenshot.success", component);
-        } catch (Exception exception) {
-            LOGGER.error("Couldn't save image", exception);
-            mutablecomponent = Component.translatable("screenshot.failure", exception.getMessage());
-        } finally {
-            player.setXRot(f);
-            player.setYRot(f1);
-            player.xRotO = f2;
-            player.yRotO = f3;
-            mc.gameRenderer.setRenderBlockOutline(true);
-            window.setWidth(l);
-            window.setHeight(i1);
-            rendertarget.resize(l, i1);
-            camera.disablePanoramicMode();
-        }
-        
-        return mutablecomponent;
+        assert mc.player != null;
+        float f = mc.player.getXRot();
+        float f1 = mc.player.getYRot();
+        float f2 = mc.player.xRotO;
+        float f3 = mc.player.yRotO;
+        mc.levelRenderer.graphicsChanged();
+        var hideGui = mc.options.hideGui;
+        mc.options.hideGui = true;
+        takingSkyBox = true;
+        TickSequence.builder()
+                .waitTicks(1)
+                .append(() -> {
+                    IExtendedWindow.get().enableOverride(size,size);
+                    mc.gameRenderer.setRenderBlockOutline(false);
+                })
+                .append(() -> setPlayerRot(0,f1))
+                .waitTicks(delay)
+                .append("after game render", () ->  Screenshot.grab(FMLPaths.GAMEDIR.get().toFile(), name + "_0.png", Minecraft.getInstance().getMainRenderTarget(), (p_231415_) -> {}))
+                .append(() -> setPlayerRot(1,f1))
+                .waitTicks(delay)
+                .append("after game render", () ->  Screenshot.grab(FMLPaths.GAMEDIR.get().toFile(), name + "_1.png", Minecraft.getInstance().getMainRenderTarget(), (p_231415_) -> {}))
+                .append(() -> setPlayerRot(2,f1))
+                .waitTicks(delay)
+                .append("after game render", () ->  Screenshot.grab(FMLPaths.GAMEDIR.get().toFile(), name + "_2.png", Minecraft.getInstance().getMainRenderTarget(), (p_231415_) -> {}))
+                .append(() -> setPlayerRot(3,f1))
+                .waitTicks(delay)
+                .append("after game render", () ->  Screenshot.grab(FMLPaths.GAMEDIR.get().toFile(), name + "_3.png", Minecraft.getInstance().getMainRenderTarget(), (p_231415_) -> {}))
+                .append(() -> setPlayerRot(4,f1))
+                .waitTicks(delay)
+                .append("after game render", () ->  Screenshot.grab(FMLPaths.GAMEDIR.get().toFile(), name + "_4.png", Minecraft.getInstance().getMainRenderTarget(), (p_231415_) -> {}))
+                .append(() -> setPlayerRot(5,f1))
+                .waitTicks(delay)
+                .append("after game render", () ->  Screenshot.grab(FMLPaths.GAMEDIR.get().toFile(), name + "_5.png", Minecraft.getInstance().getMainRenderTarget(), (p_231415_) -> {}))
+                .append(() -> {
+                    var player = mc.player;
+                    player.setXRot(f);
+                    player.setYRot(f1);
+                    player.xRotO = f2;
+                    player.yRotO = f3;
+                    mc.options.hideGui = hideGui;
+                    mc.gameRenderer.setRenderBlockOutline(true);
+                    mc.levelRenderer.graphicsChanged();
+                    var gameDirectory = FMLPaths.GAMEDIR.get().toFile();
+                    var message = Component.literal(gameDirectory.getName()).withStyle(ChatFormatting.UNDERLINE).withStyle((p_231426_) -> p_231426_.withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_FILE, gameDirectory.getAbsolutePath())));
+                    Minecraft.getInstance().execute(() -> Minecraft.getInstance().gui.getChat().addMessage(message));
+                    takingSkyBox = false;
+                })
+                .append(() -> IExtendedWindow.get().disableOverride())
+                .buildInClient();
     }
     
+    public static void setPlayerRot(int index, float f1){
+        var player = Minecraft.getInstance().player;
+        assert player != null;
+        switch (index) {
+            case 0:
+                player.setYRot(f1);
+                player.setXRot(0.0F);
+                break;
+            case 1:
+                player.setYRot((f1 + 90.0F) % 360.0F);
+                player.setXRot(0.0F);
+                break;
+            case 2:
+                player.setYRot((f1 + 180.0F) % 360.0F);
+                player.setXRot(0.0F);
+                break;
+            case 3:
+                player.setYRot((f1 - 90.0F) % 360.0F);
+                player.setXRot(0.0F);
+                break;
+            case 4:
+                player.setYRot(f1);
+                player.setXRot(-90.0F);
+                break;
+            case 5:
+            default:
+                player.setYRot(f1);
+                player.setXRot(90.0F);
+        }
+        player.yRotO = player.getYRot();
+        player.xRotO = player.getXRot();
+    }
+    
+    @SubscribeEvent
+    public static void onGetFov(ViewportEvent.ComputeFov event){
+        if(takingSkyBox) event.setFOV(90);
+    }
 }
