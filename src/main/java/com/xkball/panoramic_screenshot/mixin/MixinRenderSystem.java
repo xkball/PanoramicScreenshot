@@ -1,21 +1,20 @@
 package com.xkball.panoramic_screenshot.mixin;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.xkball.panoramic_screenshot.PanoramicScreenShotHelper;
 import com.xkball.panoramic_screenshot.utils.TickSequenceHandler;
-import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Screenshot;
-import net.minecraft.client.renderer.GameRenderer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-
-@Mixin(GameRenderer.class)
-public class GameRendererMixin {
-    @Inject(method = "render",at = @At("RETURN"))
-    public void afterRender(DeltaTracker deltaTracker, boolean renderLevel, CallbackInfo ci){
+@Mixin(RenderSystem.class)
+public class MixinRenderSystem {
+    
+    @Inject(method = "flipFrame", at = @At("HEAD"))
+    private static void onFlipFrame(long windowId, CallbackInfo ci){
         if(PanoramicScreenShotHelper.INSTANCE.takeScreenShot){
             PanoramicScreenShotHelper.INSTANCE.takeScreenShot = false;
             PanoramicScreenShotHelper.INSTANCE.writeImageSection(Screenshot.takeScreenshot(Minecraft.getInstance().getMainRenderTarget()));

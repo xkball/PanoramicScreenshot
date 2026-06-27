@@ -42,8 +42,7 @@ public class PSKeyBind {
                 }
             }
             else if(SKYBOX_KEY.get().isActiveAndMatches(InputConstants.getKey(event.getKey(),event.getScanCode()))){
-                var co = PanoramicScreenshot.grabPanoramixScreenshot("skybox",2048,2048);
-                Minecraft.getInstance().execute(() -> Minecraft.getInstance().gui.getChat().addMessage(co));
+                PanoramicScreenshot.screenshotSkyBox("skybox",2048, 2);
             }
         }
     }
