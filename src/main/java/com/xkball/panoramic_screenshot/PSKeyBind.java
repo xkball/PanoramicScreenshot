@@ -41,9 +41,8 @@ public class PSKeyBind {
                     PanoramicScreenShotHelper.INSTANCE.startDefault(PanoramicScreenShotHelper.Mode.FAST);
                 }
             }
-            else if(SKYBOX_KEY.get().isActiveAndMatches(InputConstants.getKey(event.getKeyEvent()))){
-                var co = PanoramicScreenshot.grabPanoramixScreenshot("skybox",2048,2048);
-                Minecraft.getInstance().execute(() -> Minecraft.getInstance().gui.hud.getChat().addClientSystemMessage(co));
+            else if(SKYBOX_KEY.get().isActiveAndMatches(InputConstants.getKey(event.getKey(),event.getScanCode()))){
+                PanoramicScreenshot.screenshotSkyBox("skybox",2048, 2);
             }
         }
     }
