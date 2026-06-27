@@ -131,9 +131,8 @@ public class PanoramicScreenshot {
         float f1 = mc.player.getYRot();
         float f2 = mc.player.xRotO;
         float f3 = mc.player.yRotO;
-        mc.levelRenderer.graphicsChanged();
-        var hideGui = mc.options.hideGui;
-        mc.options.hideGui = true;
+        var hideGui = mc.gui.hud.isHidden();
+        if(!hideGui) mc.gui.hud.toggle();
         takingSkyBox = true;
         TickSequence.builder()
                 .waitTicks(1)
@@ -143,34 +142,33 @@ public class PanoramicScreenshot {
                 })
                 .append(() -> setPlayerRot(0,f1))
                 .waitTicks(delay)
-                .append("after game render", () ->  Screenshot.grab(FMLPaths.GAMEDIR.get().toFile(), name + "_0.png", Minecraft.getInstance().getMainRenderTarget(), (p_231415_) -> {}))
+                .append("after game render", () ->  Screenshot.grab(FMLPaths.GAMEDIR.get().toFile(), name + "_0.png", Minecraft.getInstance().gameRenderer.mainRenderTarget(), 1, (p_231415_) -> {}))
                 .append(() -> setPlayerRot(1,f1))
                 .waitTicks(delay)
-                .append("after game render", () ->  Screenshot.grab(FMLPaths.GAMEDIR.get().toFile(), name + "_1.png", Minecraft.getInstance().getMainRenderTarget(), (p_231415_) -> {}))
+                .append("after game render", () ->  Screenshot.grab(FMLPaths.GAMEDIR.get().toFile(), name + "_1.png", Minecraft.getInstance().gameRenderer.mainRenderTarget(), 1,  (p_231415_) -> {}))
                 .append(() -> setPlayerRot(2,f1))
                 .waitTicks(delay)
-                .append("after game render", () ->  Screenshot.grab(FMLPaths.GAMEDIR.get().toFile(), name + "_2.png", Minecraft.getInstance().getMainRenderTarget(), (p_231415_) -> {}))
+                .append("after game render", () ->  Screenshot.grab(FMLPaths.GAMEDIR.get().toFile(), name + "_2.png", Minecraft.getInstance().gameRenderer.mainRenderTarget(), 1,  (p_231415_) -> {}))
                 .append(() -> setPlayerRot(3,f1))
                 .waitTicks(delay)
-                .append("after game render", () ->  Screenshot.grab(FMLPaths.GAMEDIR.get().toFile(), name + "_3.png", Minecraft.getInstance().getMainRenderTarget(), (p_231415_) -> {}))
+                .append("after game render", () ->  Screenshot.grab(FMLPaths.GAMEDIR.get().toFile(), name + "_3.png", Minecraft.getInstance().gameRenderer.mainRenderTarget(), 1,  (p_231415_) -> {}))
                 .append(() -> setPlayerRot(4,f1))
                 .waitTicks(delay)
-                .append("after game render", () ->  Screenshot.grab(FMLPaths.GAMEDIR.get().toFile(), name + "_4.png", Minecraft.getInstance().getMainRenderTarget(), (p_231415_) -> {}))
+                .append("after game render", () ->  Screenshot.grab(FMLPaths.GAMEDIR.get().toFile(), name + "_4.png", Minecraft.getInstance().gameRenderer.mainRenderTarget(), 1,  (p_231415_) -> {}))
                 .append(() -> setPlayerRot(5,f1))
                 .waitTicks(delay)
-                .append("after game render", () ->  Screenshot.grab(FMLPaths.GAMEDIR.get().toFile(), name + "_5.png", Minecraft.getInstance().getMainRenderTarget(), (p_231415_) -> {}))
+                .append("after game render", () ->  Screenshot.grab(FMLPaths.GAMEDIR.get().toFile(), name + "_5.png", Minecraft.getInstance().gameRenderer.mainRenderTarget(), 1,  (p_231415_) -> {}))
                 .append(() -> {
                     var player = mc.player;
                     player.setXRot(f);
                     player.setYRot(f1);
                     player.xRotO = f2;
                     player.yRotO = f3;
-                    mc.options.hideGui = hideGui;
+                    if(!hideGui) mc.gui.hud.toggle();
                     mc.gameRenderer.setRenderBlockOutline(true);
-                    mc.levelRenderer.graphicsChanged();
-                    var gameDirectory = FMLPaths.GAMEDIR.get().toFile();
-                    var message = Component.literal(gameDirectory.getName()).withStyle(ChatFormatting.UNDERLINE).withStyle((p_231426_) -> p_231426_.withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_FILE, gameDirectory.getAbsolutePath())));
-                    Minecraft.getInstance().execute(() -> Minecraft.getInstance().gui.getChat().addMessage(message));
+                    var gameDirectory = FMLPaths.GAMEDIR.get().resolve("screenshots").toFile();
+                    var message = Component.literal(gameDirectory.getName()).withStyle(ChatFormatting.UNDERLINE).withStyle((p_231426_) -> p_231426_.withClickEvent(new ClickEvent.OpenFile(gameDirectory.getAbsolutePath())));
+                    Minecraft.getInstance().execute(() -> Minecraft.getInstance().gui.hud.getChat().addClientSystemMessage(message));
                     takingSkyBox = false;
                 })
                 .append(() -> IExtendedWindow.get().disableOverride())

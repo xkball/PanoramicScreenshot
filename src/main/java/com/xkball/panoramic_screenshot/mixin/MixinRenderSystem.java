@@ -1,5 +1,6 @@
 package com.xkball.panoramic_screenshot.mixin;
 
+import com.mojang.blaze3d.TracyFrameCapture;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.xkball.panoramic_screenshot.PanoramicScreenShotHelper;
 import com.xkball.panoramic_screenshot.utils.TickSequenceHandler;
@@ -15,7 +16,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class MixinRenderSystem {
     
     @Inject(method = "flipFrame", at = @At("HEAD"))
-    private static void onFlipFrame(long windowId, CallbackInfo ci){
+    private static void onFlipFrame(TracyFrameCapture tracyFrameCapture, CallbackInfo ci){
         if(PanoramicScreenShotHelper.INSTANCE.takeScreenShot && !PanoramicScreenShotHelper.INSTANCE.takingScreenShot){
             PanoramicScreenShotHelper.INSTANCE.takingScreenShot = true;
             Screenshot.takeScreenshot(Minecraft.getInstance().gameRenderer.mainRenderTarget(),(i) -> {

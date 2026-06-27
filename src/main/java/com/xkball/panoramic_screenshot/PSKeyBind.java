@@ -41,7 +41,7 @@ public class PSKeyBind {
                     PanoramicScreenShotHelper.INSTANCE.startDefault(PanoramicScreenShotHelper.Mode.FAST);
                 }
             }
-            else if(SKYBOX_KEY.get().isActiveAndMatches(InputConstants.getKey(event.getKey(),event.getScanCode()))){
+            else if(SKYBOX_KEY.get().isActiveAndMatches(InputConstants.getKey(event.getKeyEvent()))){
                 PanoramicScreenshot.screenshotSkyBox("skybox",2048, 2);
             }
         }
